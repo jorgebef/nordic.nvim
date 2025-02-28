@@ -65,9 +65,16 @@ function M.merge_inplace(t1, t2)
     end
 end
 
-function M.hex_to_rgb(str)
-    str = string.lower(str)
-    return tonumber(str:sub(2, 3), 16), tonumber(str:sub(4, 5), 16), tonumber(str:sub(6, 7), 16)
+---@param hex_str string hexadecimal value of a color
+function M.hex_to_rgb(hex_str)
+    local hex = '[abcdef0-9][abcdef0-9]'
+    local pat = '^#(' .. hex .. ')(' .. hex .. ')(' .. hex .. ')$'
+    hex_str = string.lower(hex_str)
+
+    assert(string.find(hex_str, pat) ~= nil, 'hex_to_rgb: invalid hex_str: ' .. tostring(hex_str))
+
+    local red, green, blue = string.match(hex_str, pat)
+    return { tonumber(red, 16), tonumber(green, 16), tonumber(blue, 16) }
 end
 
 function M.rgb_to_hex(r, g, b)
@@ -75,18 +82,19 @@ function M.rgb_to_hex(r, g, b)
 end
 
 -- Adapted from @folke/tokyonight.nvim.
-function M.blend(foreground, background, alpha)
-    if M.is_none(foreground) or M.is_none(background) then return M.none() end
+---@param fg string forecrust color
+---@param bg string background color
+---@param alpha number number between 0 and 1. 0 results in bg, 1 results in fg
+function M.blend(fg, bg, alpha)
+    bg = M.hex_to_rgb(bg)
+    fg = M.hex_to_rgb(fg)
 
-    local fg = { M.hex_to_rgb(foreground) }
-    local bg = { M.hex_to_rgb(background) }
-
-    local blend_channel = function(c_fg, c_bg)
-        local ret = (alpha * c_fg + ((1 - alpha) * c_bg))
+    local blendChannel = function(i)
+        local ret = (alpha * fg[i] + ((1 - alpha) * bg[i]))
         return math.floor(math.min(math.max(0, ret), 255) + 0.5)
     end
 
-    return M.rgb_to_hex(blend_channel(fg[1], bg[1]), blend_channel(fg[2], bg[2]), blend_channel(fg[3], bg[3]))
+    return string.format('#%02X%02X%02X', blendChannel(1), blendChannel(2), blendChannel(3))
 end
 
 function M.assert_eq(left, right, message)
