@@ -64,6 +64,12 @@ local defaults = {
         vimtex = true,
         which_key = true,
     },
+    visual = {
+        -- Available styles: 'dark', 'light'.
+        theme = 'dark',
+        -- Blending the cursorline bg with the buffer bg.
+        blend = 0.75,
+    },
     noice = {
         -- Available styles: `classic`, `flat`.
         style = 'classic',

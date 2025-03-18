@@ -42,8 +42,18 @@ function C.build_palette()
         options.cursorline.bg = C.black0
     end
 
-    C.bg_visual = (options.transparent.bg and options.cursorline.bg)
+    -- Visual Background
+    if options.visual.theme == 'light' then
+        options.visual.bg = C.gray3
+    else
+        options.visual.bg = C.black0
+    end
+
+    C.bg_cursorline = (options.transparent.bg and options.cursorline.bg)
         or U.blend(options.cursorline.bg, C.bg, options.cursorline.blend)
+
+    C.bg_visual = (options.transparent.bg and options.visual.bg)
+        or U.blend(options.visual.bg, C.bg, options.visual.blend)
 
     -- Borders
     C.border_fg = (options.bright_border and C.white0) or C.black0
